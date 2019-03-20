@@ -3,10 +3,8 @@
 recursively find video files based on extension.
 """
 import os
-import asyncio
 from argparse import ArgumentParser
-import pyfindfiles.coro as psc
-import pyfindfiles.sync as pss
+import pyfindfiles.sync as ps
 
 VIDEXT = ['avi', 'mov', 'mp4', 'mpg', 'mpeg', 'webm', 'ogv', 'mkv', 'wmv']
 
@@ -20,13 +18,11 @@ def main():
     P = p.parse_args()
 
     if os.name == 'nt':
-        loop = asyncio.ProactorEventLoop()
-        asyncio.set_event_loop(loop)
-        flist = loop.run_until_complete(psc.findvid(P.path, P.ext))
+        flist = ps.findvid_win(P.path, P.ext)
     else:
-        flist = pss.findvid_gnu(P.path, P.ext)
+        flist = ps.findvid_gnu(P.path, P.ext)
 
-        print('\n'.join(map(str, flist)))
+    print('\n'.join(map(str, flist)))
 
 
 if __name__ == '__main__':
