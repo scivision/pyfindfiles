@@ -2,4 +2,48 @@
 
 # PyFindFiles
 
-Find files containing text or patterns efficiently with Python, cross-platform
+Find files (text or binary) containing text or patterns efficiently with Python, cross-platform.
+Default is to only search files smaller than 50 MBytes.
+
+Requires:
+* Python &ge; 3.5
+* Windows: need [SysInternals strings.exe](https://docs.microsoft.com/en-us/sysinternals/downloads/strings
+) on your PATH.
+
+## Install
+
+```sh
+git clone https://github.com/scivision/pyfindfiles
+
+cd pyfindfiles
+
+python -m pip install -e .
+```
+
+## Usage
+
+`findtext` looks for strings inside text or binary files, and reports filename text is found in.
+
+* `-v`: filename, line number, and text found
+
+
+```sh
+findtext Pattern "*.ext" root
+```
+
+Pattern
+: text to search for
+
+"*.ext"
+: file extension(s) to search for
+
+root
+: top-level directory to search under
+
+
+---
+
+`findvid`
+
+`findvid root` looks under top-level directory `root` for video files (by common file extensions)
+
