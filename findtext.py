@@ -1,9 +1,15 @@
 #!/usr/bin/env python
 r"""
 Recursively find files containing text.
-This method is slower than grep, but is cross-platform and easier syntax.
+This method is slower than grep or findstr, but is cross-platform and easier syntax.
 
-benchmarks:
+For Windows, we require that you have Microsoft SysInternals "strings.exe" on your PATH,
+which can be obtained from:
+
+https://docs.microsoft.com/en-us/sysinternals/downloads/strings
+
+
+## benchmarks:
 
 time findtext xarray
 18.6 sec
@@ -25,13 +31,14 @@ time grep -r -l \
 0.15 sec
 
 """
+import io
 import os
 import logging
 from pathlib import Path
 import subprocess
 import shutil
 from binaryornot.check import is_binary
-from typing import List, Union, Iterable
+from typing import Dict, Iterable, IO, AnyStr
 from argparse import ArgumentParser
 try:
     import colorama
@@ -41,7 +48,7 @@ try:
 except ImportError:
     MAGENTA = BLACK = ''
 
-MAXSIZE = 20e6  # [bytes]
+MAXSIZE = 50e6  # [bytes]
 EXT = ['*.py', '*.cfg', '*.ini',
        '*.txt', '*.pdf',
        '*.md', '*.rst',
@@ -54,19 +61,21 @@ EXT = ['*.py', '*.cfg', '*.ini',
 EXCLUDEDIR = ['_site', '.git', '.eggs', 'build', 'dist', '.mypy_cache', '.pytest_cache']
 
 
-GREP = shutil.which('grep')
-if not GREP:
-    logging.warning('grep not found, cannot search binary files')
+STRINGS = shutil.which('strings')
+if not STRINGS:
+    logging.warning('"strings" program not found, cannot search binary files')
 
 
 def findtext(root: Path, txt: str,
-             globext: Union[str, Path, List[str]],
-             exclude: List[str], verbose: bool):
+             globext: Iterable[str],
+             exclude: Iterable[str], verbose: bool):
     """
     multiple extensions with braces like Linux does not work in .rglob()
     """
 
     root = Path(root).expanduser()
+    if not root.is_dir():
+        raise NotADirectoryError('{} is not a directory'.format(root))
 
     if isinstance(globext, (str, Path)):
         globext = [str(globext)]
@@ -75,55 +84,52 @@ def findtext(root: Path, txt: str,
         searchlist(root.rglob(ext), txt, exclude, verbose)
 
 
-def searchlist(flist: Union[List[Path], Iterable[Path]],
-               txt: str, exclude: List[str],
+def searchlist(flist: Iterable[Path],
+               txt: str, exclude: Iterable[str],
                verbose: bool):
 
     mat = []
     exc = set(exclude)
 
-    for f in flist:
-        if exc.intersection(set(str(f.resolve()).split(os.sep))):
+    for fn in flist:
+        if (exc.intersection(set(str(fn.resolve()).split(os.sep)))
+            or not fn.is_file()
+                or fn.stat().st_size > MAXSIZE):
             continue
-        # note that searchfile() does NOT work for PDF even with text inside...but Grep does. Hmm..
-        if f.is_file() and f.stat().st_size < MAXSIZE:
-            if not is_binary(str(f)):
-                matches = searchfile(f, txt)
-            elif f.suffix == '.pdf':
-                matches = searchbinary(f, txt)
-            else:
-                logging.info('skipped {}'.format(f))
-                continue
 
-            if matches:
-                mat.append(f)
-                if verbose:
-                    print(MAGENTA + str(f))
-                    print(BLACK + '\n'.join(matches))
-                else:
-                    print(f)
+        if is_binary(str(fn)):
+            raw = get_text(fn)
+            matches = get_matches(io.StringIO(raw), txt)
+        else:
+            with fn.open('r', encoding='utf8', errors='ignore') as f:
+                matches = get_matches(f, txt)
 
+        if not matches:
+            continue
 
-def searchbinary(f: Path, txt: str) -> List[str]:
-    # FIXME: use Python directly to make cross-platform Windows
-    if not GREP:
-        return []
+        mat.append(fn)
 
-    ret = subprocess.run([GREP, txt, f],
-                         stdout=subprocess.PIPE)  # grep return 0 if match, 1 if no match
-
-    return [ret.stdout]
+        if verbose:
+            print(MAGENTA + str(fn) + BLACK)
+            for k, v in matches.items():
+                print('{}: {}'.format(k, v))
+        else:
+            print(fn)
 
 
-def searchfile(fn: Path, txt: str) -> List[str]:
+def get_text(f: Path) -> str:
+    if not STRINGS:
+        return ''
+
+    return subprocess.run([STRINGS, str(f)], stdout=subprocess.PIPE,
+                          universal_newlines=True).stdout
+
+
+def get_matches(f: IO[AnyStr], txt: str) -> Dict[int, AnyStr]:
     """
-    NO speedup observed from doing this first
-    if not txt in str(f):
-       return here,matchinglines
+    returns line number and matching line text
     """
-
-    with fn.open('r', encoding='utf8', errors='ignore') as f:
-        return ['{}: {}'.format(i, line) for i, line in enumerate(f) if txt in line]
+    return {i: line for i, line in enumerate(f) if txt in line}
 
 
 def main():
