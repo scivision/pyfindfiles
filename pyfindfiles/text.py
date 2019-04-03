@@ -1,16 +1,14 @@
-import io
 import os
 import logging
 from pathlib import Path
-import subprocess
 import shutil
 from typing import Dict, Iterable, IO, AnyStr
-try:
-    import colorama
-    MAGENTA = colorama.Back.MAGENTA
-    BLACK = colorama.Back.BLACK
-    colorama.init()
-except ImportError:
+
+# from colorama, would need Win32 calls for Windows Command Prompt
+if os.name != 'nt':
+    MAGENTA = '\x1b[45m'
+    BLACK = '\x1b[40m'
+else:
     MAGENTA = BLACK = ''
 
 TXTEXT = ['*.py', '*.cfg', '*.ini',
@@ -54,24 +52,6 @@ def findtext(root: Path, txt: str,
     return mat
 
 
-def is_binary(fn: Path) -> bool:
-    """
-    binaryornet.is_binary is slow for massive amounts of files.
-    Let's do a really simple and fast check instead.
-
-    We assume if it was text, there would be a newline or space in the first 10000 characters.
-    For certain types of files (compressed HTML) this assumption may be broken
-    """
-
-    with fn.open('r') as f:
-        try:
-            raw = f.read(10000)
-        except UnicodeDecodeError:
-            return False
-
-    return '\n' in raw or ' ' in raw
-
-
 def searchlist(flist: Iterable[Path],
                txt: str,
                exclude: Iterable[str],
@@ -81,18 +61,12 @@ def searchlist(flist: Iterable[Path],
     exc = set(exclude)
 
     for fn in flist:
-        if (exc.intersection(set(str(fn.resolve()).split(os.sep)))
-            or not fn.is_file()
-                or fn.stat().st_size > MAXSIZE):
+        excluded = exc.intersection(set(str(fn.resolve()).split(os.sep)))
+        if excluded or not fn.is_file() or fn.stat().st_size > MAXSIZE:
             continue
 
-        if fn.suffix in TXTEXT:
-            matches = get_matches(io.StringIO(get_text(fn)), txt)
-        elif fn.suffix in BINEXT or is_binary(fn):
-            with fn.open('r', encoding='utf8', errors='ignore') as f:
-                matches = get_matches(f, txt)
-        else:  # slow way to determine it's text
-            matches = get_matches(io.StringIO(get_text(fn)), txt)
+        with fn.open('r', encoding='utf8', errors='ignore') as f:
+            matches = get_matches(f, txt)
 
         if not matches:
             continue
@@ -105,14 +79,6 @@ def searchlist(flist: Iterable[Path],
                 print(k, ':', v)
 
     return mat
-
-
-def get_text(f: Path) -> str:
-    if not STRINGS:
-        return ''
-
-    return subprocess.run([STRINGS, str(f)], stdout=subprocess.PIPE,
-                          universal_newlines=True).stdout
 
 
 def get_matches(f: IO[AnyStr], txt: str) -> Dict[int, str]:
