@@ -4,7 +4,6 @@ import logging
 from pathlib import Path
 import subprocess
 import shutil
-from binaryornot.check import is_binary
 from typing import Dict, Iterable, IO, AnyStr
 try:
     import colorama
@@ -13,6 +12,17 @@ try:
     colorama.init()
 except ImportError:
     MAGENTA = BLACK = ''
+
+TXTEXT = ['*.py', '*.cfg', '*.ini',
+          '*.txt',
+          '*.md', '*.rst',
+          '*.tex',
+          '*.cmake',
+          '*.f', '*.f90', '*.for', '*.f95',
+          '*.c', '*.h', '*.cpp', '*.cxx', '*.cc', '*.hpp',
+          '*.m']
+
+BINEXT = ['*.pdf', ]
 
 MAXSIZE = 100e6  # arbitrary, bytes
 
@@ -44,6 +54,24 @@ def findtext(root: Path, txt: str,
     return mat
 
 
+def is_binary(fn: Path) -> bool:
+    """
+    binaryornet.is_binary is slow for massive amounts of files.
+    Let's do a really simple and fast check instead.
+
+    We assume if it was text, there would be a newline or space in the first 10000 characters.
+    For certain types of files (compressed HTML) this assumption may be broken
+    """
+
+    with fn.open('r') as f:
+        try:
+            raw = f.read(10000)
+        except UnicodeDecodeError:
+            return False
+
+    return '\n' in raw or ' ' in raw
+
+
 def searchlist(flist: Iterable[Path],
                txt: str,
                exclude: Iterable[str],
@@ -58,12 +86,13 @@ def searchlist(flist: Iterable[Path],
                 or fn.stat().st_size > MAXSIZE):
             continue
 
-        if is_binary(str(fn)):
-            raw = get_text(fn)
-            matches = get_matches(io.StringIO(raw), txt)
-        else:
+        if fn.suffix in TXTEXT:
+            matches = get_matches(io.StringIO(get_text(fn)), txt)
+        elif fn.suffix in BINEXT or is_binary(fn):
             with fn.open('r', encoding='utf8', errors='ignore') as f:
                 matches = get_matches(f, txt)
+        else:  # slow way to determine it's text
+            matches = get_matches(io.StringIO(get_text(fn)), txt)
 
         if not matches:
             continue
@@ -73,7 +102,7 @@ def searchlist(flist: Iterable[Path],
         if verbose:
             print(MAGENTA + str(fn) + BLACK)
             for k, v in matches.items():
-                print('{}: {}'.format(k, v))
+                print(k, ':', v)
 
     return mat
 

@@ -33,16 +33,7 @@ time grep -r -l \
 """
 from argparse import ArgumentParser
 
-import pyfindfiles as pf
-
-EXT = ['*.py', '*.cfg', '*.ini',
-       '*.txt', '*.pdf',
-       '*.md', '*.rst',
-       '*.tex',
-       '*.cmake',
-       '*.f', '*.f90', '*.for', '*.f95',
-       '*.c', '*.h', '*.cpp', '*.cxx', '*.cc', '*.hpp',
-       '*.m']
+import pyfindfiles.text as pf
 
 EXCLUDEDIR = ['_site', '.git', '.eggs', 'build', 'dist', '.mypy_cache', '.pytest_cache']
 
@@ -50,7 +41,7 @@ EXCLUDEDIR = ['_site', '.git', '.eggs', 'build', 'dist', '.mypy_cache', '.pytest
 def main():
     p = ArgumentParser(description='searches for TEXT under DIR and echos back filenames')
     p.add_argument('txt', help='text to search for')  # required
-    p.add_argument('globext', help='filename glob', nargs='?', default=EXT)
+    p.add_argument('globext', help='filename glob', nargs='?', default=pf.TXTEXT)
     p.add_argument('dir', help='root dir to search', nargs='?', default='.')
     p.add_argument('-e', '--exclude', help='exclude files/dirs', nargs='+', default=EXCLUDEDIR)
     p.add_argument('-v', '--verbose', action='store_true')

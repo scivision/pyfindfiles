@@ -19,7 +19,7 @@ def test_script():
 def test_mod():
     mat = pf.findtext(R, 'import', '*.py')
 
-    for k,v in mat.items():
+    for k, v in mat.items():
         assert k.samefile(__file__)
 
 
