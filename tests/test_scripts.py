@@ -8,7 +8,7 @@ import os
 R = Path(__file__).parent
 
 
-@pytest.mark.skipif(os.environ.get('CI'), reason='CI does not like recursive search')
+@pytest.mark.skipif(bool(os.environ.get('CI')), reason='CI does not like recursive search')
 def test_script():
     ret = subprocess.check_output(['findtext', 'import'], universal_newlines=True,
                                   cwd=str(R))
