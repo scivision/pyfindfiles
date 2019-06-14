@@ -6,6 +6,9 @@ import pyfindfiles as pf
 import os
 
 R = Path(__file__).parent
+"""
+TEST_STRING_TO_MATCH
+"""
 
 
 @pytest.mark.skipif(bool(os.environ.get('CI')), reason='CI does not like recursive search')
@@ -19,10 +22,10 @@ def test_script():
 
 
 def test_mod():
-    mat = pf.findtext(R, 'import', '*.py')
+    files = pf.findtext(R, 'TEST_STRING_TO_MATCH', '*.py')
 
-    for k, v in mat.items():
-        assert k.samefile(__file__)
+    for file, matches in files:
+        assert file.samefile(__file__)
 
 
 if __name__ == '__main__':

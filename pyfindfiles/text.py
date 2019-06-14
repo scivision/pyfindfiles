@@ -2,13 +2,6 @@ import os
 from pathlib import Path
 from typing import Dict, Iterable, Sequence, Tuple
 
-# from colorama, would need Win32 calls for Windows Command Prompt
-if os.name != 'nt':
-    MAGENTA = '\x1b[45m'
-    BLACK = '\x1b[40m'
-else:
-    MAGENTA = BLACK = ''
-
 TXTEXT = ['*.py', '*.cfg', '*.ini',
           '*.txt',
           '*.md', '*.rst',
@@ -24,9 +17,8 @@ MAXSIZE = 100e6  # arbitrary, bytes
 
 
 def findtext(root: Path, txt: str,
-             globext: Iterable[str],
-             exclude: Sequence[str] = [],
-             verbose: bool = False) -> Iterable[Tuple[Path, Dict[int, str]]]:
+             globext: Sequence[str],
+             exclude: Sequence[str] = []) -> Iterable[Tuple[Path, Dict[int, str]]]:
     """
     multiple extensions with braces like Linux does not work in .rglob()
     """
@@ -51,10 +43,5 @@ def findtext(root: Path, txt: str,
 
             if not matches:
                 continue
-
-            if verbose:
-                print(MAGENTA + str(fn) + BLACK)
-                for k, v in matches.items():
-                    print(k, ':', v)
 
             yield fn, matches

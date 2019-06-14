@@ -3,12 +3,6 @@ r"""
 Recursively find files containing text.
 This method is slower than grep or findstr, but is cross-platform and easier syntax.
 
-For Windows, we require that you have Microsoft SysInternals "strings.exe" on your PATH,
-which can be obtained from:
-
-https://docs.microsoft.com/en-us/sysinternals/downloads/strings
-
-
 ## benchmarks:
 
 time findtext xarray
@@ -31,11 +25,18 @@ time grep -r -l \
 0.15 sec
 
 """
+import os
 from argparse import ArgumentParser
 
 import pyfindfiles.text as pf
 
 EXCLUDEDIR = ['_site', '.git', '.eggs', 'build', 'dist', '.mypy_cache', '.pytest_cache']
+# from colorama, would need Win32 calls for Windows Command Prompt
+if os.name != 'nt':
+    MAGENTA = '\x1b[45m'
+    BLACK = '\x1b[40m'
+else:
+    MAGENTA = BLACK = ''
 
 
 def main():
@@ -47,11 +48,16 @@ def main():
     p.add_argument('-v', '--verbose', action='store_true')
     P = p.parse_args()
 
-    files = pf.findtext(P.dir, P.txt, P.globext, P.exclude, P.verbose)
+    files = pf.findtext(P.dir, P.txt, P.globext, P.exclude)
 
-    if not P.verbose:
-        for k, v in files:
-            print(k)
+    if P.verbose:
+        for fn, matches in files:
+            print(MAGENTA + str(fn) + BLACK)
+            for k, v in matches.items():
+                print(k, ':', v)
+    else:
+        for fn, _ in files:
+            print(fn)
 
 
 if __name__ == '__main__':

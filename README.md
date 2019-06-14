@@ -5,12 +5,11 @@
 # PyFindFiles
 
 Find files (text or binary) containing text or patterns efficiently with Python, cross-platform.
-Default is to only search files smaller than 50 MBytes.
+Default is to only search files smaller than 100 MBytes.
+Uses pipelining and asyncio to speed up operations.
 
 Requires:
-* Python &ge; 3.5
-* Windows: need [SysInternals strings.exe](https://docs.microsoft.com/en-us/sysinternals/downloads/strings
-) on your PATH.
+* Python &ge; 3.7
 
 ## Install
 
