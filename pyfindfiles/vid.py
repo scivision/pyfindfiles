@@ -21,7 +21,8 @@ def findvid(path: Path, ext: Sequence[str]) -> List[Path]:
     return flist
 
 
-def findvid_gnu(path: Path, ext: Sequence[str], verbose: bool = False) -> List[Path]:
+async def findvid_gnu(path: Path, exts: Sequence[str],
+                      verbose: bool = False) -> AsyncGenerator[Path, None]:
     """
     recursive file search using GNU find
     """
@@ -30,23 +31,17 @@ def findvid_gnu(path: Path, ext: Sequence[str], verbose: bool = False) -> List[P
     assert isinstance(FIND, str)
     cmd = [FIND, str(path), '-type', 'f',
            '-regextype', 'posix-egrep',
-           '-iregex', r'.*\.(' + '|'.join(ext) + ')$']
+           '-iregex', r'.*(' + r'|'.join(exts) + r')$']
 
     if verbose:
         print(' '.join(cmd))
 
-    ret = subprocess.run(cmd,
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.DEVNULL,
-                         universal_newlines=True)
+    proc = await asyncio.create_subprocess_shell(' '.join(cmd), cwd=path,
+                                                     stdout=asyncio.subprocess.PIPE,
+                                                     stderr=asyncio.subprocess.DEVNULL)
+    stdout, _ = await proc.communicate()
 
-    returncode: int = ret.returncode
-    if returncode in (0, 1):
-        pass
-    else:
-        raise OSError(returncode)
-
-    return ret.stdout.split('\n')
+    yield stdout.decode('utf8').split('\n')
 
 
 async def findvid_win(path: Path, exts: Sequence[str]) -> AsyncGenerator[Path, None]:
