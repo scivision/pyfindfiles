@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import pytest
-import os
 from pathlib import Path
 
 import pyfindfiles.vid as fv
@@ -14,3 +13,7 @@ def test_findvid():
 
     flist = list(files)
     assert len(flist) == 2
+
+
+if __name__ == '__main__':
+    pytest.main([__file__])

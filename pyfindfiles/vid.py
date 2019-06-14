@@ -1,6 +1,5 @@
 from typing import Sequence, List, AsyncGenerator
 from pathlib import Path
-import subprocess
 import asyncio
 
 from . import FIND, DIR
@@ -22,7 +21,7 @@ def findvid(path: Path, ext: Sequence[str]) -> List[Path]:
 
 
 async def findvid_gnu(path: Path, exts: Sequence[str],
-                      verbose: bool = False) -> AsyncGenerator[Path, None]:
+                      verbose: bool = False) -> AsyncGenerator[str, None]:
     """
     recursive file search using GNU find
     """
@@ -37,11 +36,12 @@ async def findvid_gnu(path: Path, exts: Sequence[str],
         print(' '.join(cmd))
 
     proc = await asyncio.create_subprocess_shell(' '.join(cmd), cwd=path,
-                                                     stdout=asyncio.subprocess.PIPE,
-                                                     stderr=asyncio.subprocess.DEVNULL)
+                                                 stdout=asyncio.subprocess.PIPE,
+                                                 stderr=asyncio.subprocess.DEVNULL)
     stdout, _ = await proc.communicate()
 
-    yield stdout.decode('utf8').split('\n')
+    for video in stdout.decode('utf8').split('\n'):
+        yield video
 
 
 async def findvid_win(path: Path, exts: Sequence[str]) -> AsyncGenerator[Path, None]:
@@ -85,5 +85,5 @@ async def findvid_win(path: Path, exts: Sequence[str]) -> AsyncGenerator[Path, N
                 d = Path(' '.join(el[2:]))
                 continue
 
-            if el[-1].endswith(f'.{ext}'):
+            if el[-1].endswith(ext):
                 yield d/el[-1]

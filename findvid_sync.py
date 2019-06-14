@@ -2,7 +2,6 @@
 """
 recursively find video files based on extension.
 """
-import os
 from argparse import ArgumentParser
 import pyfindfiles.vid as ps
 

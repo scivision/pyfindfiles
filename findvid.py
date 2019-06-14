@@ -19,7 +19,7 @@ async def findvid_win(path: Path, ext: Sequence[str]):
 
 
 async def findvid_gnu(path: Path, ext: Sequence[str], verbose: bool):
-    async for video in fv.findvid_gnu(path, ext, bool):
+    async for video in fv.findvid_gnu(path, ext, verbose):
         print(video)
 
 
