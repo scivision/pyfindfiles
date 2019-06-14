@@ -14,7 +14,7 @@ def findvid(path: Path, ext: Sequence[str]) -> List[Path]:
     path = Path(path).expanduser()
 
     for e in ext:
-        flist += list(path.glob('**/*.{}'.format(e)))
+        flist += list(path.glob(f'**/*{e}'))
 
     return flist
 

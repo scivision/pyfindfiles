@@ -47,12 +47,10 @@ def main():
     p.add_argument('-v', '--verbose', action='store_true')
     P = p.parse_args()
 
-    mat = pf.findtext(P.dir, P.txt, P.globext, P.exclude, P.verbose)
-
-    assert isinstance(mat, dict)
+    files = pf.findtext(P.dir, P.txt, P.globext, P.exclude, P.verbose)
 
     if not P.verbose:
-        for k, v in mat.items():
+        for k, v in files:
             print(k)
 
 
