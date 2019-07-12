@@ -1,50 +1,46 @@
-from typing import Sequence, List, AsyncGenerator
+import typing
 from pathlib import Path
 import asyncio
+import logging
+import subprocess
 
-from . import FIND, DIR
+from . import FIND
 
 
-def findvid(path: Path, ext: Sequence[str]) -> List[Path]:
+def findvid(path: Path, ext: typing.Sequence[str]) -> typing.List[Path]:
     """
     recursive file search in Pure Python.
     about 10 times slower than Linux find, but platform-independent.
     """
-    flist: List[Path] = []
+    flist = []  # type: typing.List[Path]
 
     path = Path(path).expanduser()
 
     for e in ext:
-        flist += list(path.glob(f'**/*{e}'))
+        flist += list(path.glob('**/*'+e))
 
     return flist
 
 
-async def findvid_gnu(path: Path, exts: Sequence[str],
-                      verbose: bool = False) -> AsyncGenerator[str, None]:
+def findvid_gnu(path: Path, exts: typing.Sequence[str]) -> typing.List[str]:
     """
     recursive file search using GNU find
     """
     path = Path(path).expanduser()
+    if isinstance(exts, str):
+        exts = [exts]
 
-    assert isinstance(FIND, str)
     cmd = [FIND, str(path), '-type', 'f',
            '-regextype', 'posix-egrep',
            '-iregex', r'.*(' + r'|'.join(exts) + r')$']
+    logging.debug(' '.join(cmd))
 
-    if verbose:
-        print(' '.join(cmd))
+    stdout = subprocess.check_output(cmd, universal_newlines=True).strip()
 
-    proc = await asyncio.create_subprocess_shell(' '.join(cmd), cwd=path,
-                                                 stdout=asyncio.subprocess.PIPE,
-                                                 stderr=asyncio.subprocess.DEVNULL)
-    stdout, _ = await proc.communicate()
-
-    for video in stdout.decode('utf8').split('\n'):
-        yield video
+    return stdout.split('\n')
 
 
-async def findvid_win(path: Path, exts: Sequence[str]) -> AsyncGenerator[Path, None]:
+async def findvid_win(path: Path, ext: str) -> typing.List[Path]:
     """
     asynchronously find files with extension
 
@@ -53,37 +49,39 @@ async def findvid_win(path: Path, exts: Sequence[str]) -> AsyncGenerator[Path, N
 
     path : pathlib.Path
         root directory to recursively search under
-    exts : list of str
-        file extensions to look for
+    ext : str
+        file extension to look for
 
-    Yields
-    ------
+    Returns
+    -------
 
     video: pathlib.Path
         path to video file
     """
 
     path = Path(path).expanduser()
+    cmd = ['dir', '/s', '*'+ext]
+    logging.debug(' '.join(cmd))
+    # this has to be _shell due to that "dir" is part of Windows shell itself; _exec won't work.
+    proc = await asyncio.create_subprocess_shell(' '.join(cmd), cwd=str(path),
+                                                 stdout=asyncio.subprocess.PIPE,
+                                                 stderr=asyncio.subprocess.DEVNULL)
+    stdout, _ = await proc.communicate()
 
-    for ext in exts:
-        cmd = [DIR, '/s', f'*{ext}']
+    flist = []
+    for r in stdout.decode('utf8').split('\n'):
+        if not r:
+            continue
 
-        proc = await asyncio.create_subprocess_shell(' '.join(cmd), cwd=path,
-                                                     stdout=asyncio.subprocess.PIPE,
-                                                     stderr=asyncio.subprocess.DEVNULL)
-        stdout, _ = await proc.communicate()
+        el = r.split()
+        if not el:
+            continue
 
-        for r in stdout.decode('utf8').split('\n'):
-            if not r:
-                continue
+        if el[0].startswith('Directory'):
+            d = Path(' '.join(el[2:]))
+            continue
 
-            el = r.split()
-            if not el:
-                continue
+        if el[-1].endswith(ext):
+            flist.append(d / el[-1])
 
-            if el[0].startswith('Directory'):
-                d = Path(' '.join(el[2:]))
-                continue
-
-            if el[-1].endswith(ext):
-                yield d/el[-1]
+    return flist
