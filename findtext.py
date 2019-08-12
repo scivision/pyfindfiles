@@ -26,39 +26,51 @@ time grep -r -l \
 
 """
 import os
+import subprocess
 from argparse import ArgumentParser
 
 import pyfindfiles.text as pf
 
-EXCLUDEDIR = ['_site', '.git', '.eggs', 'build', 'dist', '.mypy_cache', '.pytest_cache']
+EXCLUDEDIR = ["_site", ".git", ".eggs", "build", "dist", ".mypy_cache", ".pytest_cache"]
 # from colorama, would need Win32 calls for Windows Command Prompt
-if os.name != 'nt':
-    MAGENTA = '\x1b[45m'
-    BLACK = '\x1b[40m'
+if os.name != "nt":
+    MAGENTA = "\x1b[45m"
+    BLACK = "\x1b[40m"
 else:
-    MAGENTA = BLACK = ''
+    MAGENTA = BLACK = ""
 
 
 def main():
-    p = ArgumentParser(description='searches for TEXT under DIR and echos back filenames')
-    p.add_argument('txt', help='text to search for')  # required
-    p.add_argument('globext', help='filename glob', nargs='?', default=pf.TXTEXT)
-    p.add_argument('dir', help='root dir to search', nargs='?', default='.')
-    p.add_argument('-e', '--exclude', help='exclude files/dirs', nargs='+', default=EXCLUDEDIR)
-    p.add_argument('-v', '--verbose', action='store_true')
+    p = ArgumentParser(
+        description="searches for TEXT under DIR and echos back filenames"
+    )
+    p.add_argument("txt", help="text to search for")  # required
+    p.add_argument("globext", help="filename glob", nargs="?", default=pf.TXTEXT)
+    p.add_argument("dir", help="root dir to search", nargs="?", default=".")
+    p.add_argument("-c", "--run", help="command to run on files e.g. notepad++")
+    p.add_argument(
+        "-e", "--exclude", help="exclude files/dirs", nargs="+", default=EXCLUDEDIR
+    )
+    p.add_argument("-v", "--verbose", action="store_true")
     P = p.parse_args()
 
     files = pf.findtext(P.dir, P.txt, P.globext, P.exclude)
 
+    flist = []
     if P.verbose:
         for fn, matches in files:
+            flist.append(str(fn))
             print(MAGENTA + str(fn) + BLACK)
             for k, v in matches.items():
-                print(k, ':', v)
+                print(k, ":", v)
     else:
         for fn, _ in files:
+            flist.append(str(fn))
             print(fn)
 
+    if P.run:
+        subprocess.run([P.run] + flist)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

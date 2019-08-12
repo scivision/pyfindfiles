@@ -11,10 +11,13 @@ TEST_STRING_TO_MATCH
 """
 
 
-@pytest.mark.skipif(bool(os.environ.get('CI')), reason='CI does not like recursive search')
+@pytest.mark.skipif(
+    bool(os.environ.get("CI")), reason="CI does not like recursive search"
+)
 def test_script():
-    ret = subprocess.check_output(['findtext', 'import'], universal_newlines=True,
-                                  cwd=str(R))
+    ret = subprocess.check_output(
+        ["findtext", "import"], universal_newlines=True, cwd=str(R)
+    )
 
     assert isinstance(ret, str)
 
@@ -22,11 +25,11 @@ def test_script():
 
 
 def test_mod():
-    files = pf.findtext(R, 'TEST_STRING_TO_MATCH', '*.py')
+    files = pf.findtext(R, "TEST_STRING_TO_MATCH", "*.py")
 
-    for file, matches in files:
+    for file, _ in files:
         assert file.samefile(__file__)
 
 
-if __name__ == '__main__':
-    pytest.main(['-x', __file__])
+if __name__ == "__main__":
+    pytest.main(["-x", __file__])

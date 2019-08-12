@@ -3,8 +3,7 @@ from pathlib import Path
 import asyncio
 import logging
 import subprocess
-
-from . import FIND
+import shutil
 
 
 def findvid(path: Path, ext: typing.Sequence[str]) -> typing.List[Path]:
@@ -17,7 +16,7 @@ def findvid(path: Path, ext: typing.Sequence[str]) -> typing.List[Path]:
     path = Path(path).expanduser()
 
     for e in ext:
-        flist += list(path.glob('**/*'+e))
+        flist += list(path.glob("**/*" + e))
 
     return flist
 
@@ -30,14 +29,25 @@ def findvid_gnu(path: Path, exts: typing.Sequence[str]) -> typing.List[str]:
     if isinstance(exts, str):
         exts = [exts]
 
-    cmd = [FIND, str(path), '-type', 'f',
-           '-regextype', 'posix-egrep',
-           '-iregex', r'.*(' + r'|'.join(exts) + r')$']
-    logging.debug(' '.join(cmd))
+    find = shutil.which("find")
+    if not find:
+        raise FileNotFoundError('could not find "find"')
+
+    cmd = [
+        find,
+        str(path),
+        "-type",
+        "f",
+        "-regextype",
+        "posix-egrep",
+        "-iregex",
+        r".*(" + r"|".join(exts) + r")$",
+    ]
+    logging.debug(" ".join(cmd))
 
     stdout = subprocess.check_output(cmd, universal_newlines=True).strip()
 
-    return stdout.split('\n')
+    return stdout.split("\n")
 
 
 async def findvid_win(path: Path, ext: str) -> typing.List[Path]:
@@ -60,16 +70,19 @@ async def findvid_win(path: Path, ext: str) -> typing.List[Path]:
     """
 
     path = Path(path).expanduser()
-    cmd = ['dir', '/s', '*'+ext]
-    logging.debug(' '.join(cmd))
+    cmd = ["dir", "/s", "*" + ext]
+    logging.debug(" ".join(cmd))
     # this has to be _shell due to that "dir" is part of Windows shell itself; _exec won't work.
-    proc = await asyncio.create_subprocess_shell(' '.join(cmd), cwd=str(path),
-                                                 stdout=asyncio.subprocess.PIPE,
-                                                 stderr=asyncio.subprocess.DEVNULL)
+    proc = await asyncio.create_subprocess_shell(
+        " ".join(cmd),
+        cwd=str(path),
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.DEVNULL,
+    )
     stdout, _ = await proc.communicate()
 
     flist = []
-    for r in stdout.decode('utf8').split('\n'):
+    for r in stdout.decode("utf8").split("\n"):
         if not r:
             continue
 
@@ -77,8 +90,8 @@ async def findvid_win(path: Path, ext: str) -> typing.List[Path]:
         if not el:
             continue
 
-        if el[0].startswith('Directory'):
-            d = Path(' '.join(el[2:]))
+        if el[0].startswith("Directory"):
+            d = Path(" ".join(el[2:]))
             continue
 
         if el[-1].endswith(ext):

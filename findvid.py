@@ -13,7 +13,7 @@ import itertools
 import pyfindfiles.vid as fv
 from pyfindfiles.runner import runner
 
-VIDEXT = ['.avi', '.mov', '.mp4', '.mpg', '.mpeg', '.webm', '.ogv', '.mkv', '.wmv']
+VIDEXT = [".avi", ".mov", ".mp4", ".mpg", ".mpeg", ".webm", ".ogv", ".mkv", ".wmv"]
 
 
 async def findvid_win(path: Path, exts: typing.Sequence[str]) -> typing.Iterator[Path]:
@@ -23,15 +23,17 @@ async def findvid_win(path: Path, exts: typing.Sequence[str]) -> typing.Iterator
 
 def main():
     p = ArgumentParser()
-    p.add_argument('path', help='root path to start recursive search')
-    p.add_argument('-v', '--verbose', action='store_true')
-    p.add_argument('-ext', help='video extension to search for', nargs='+', default=VIDEXT)
+    p.add_argument("path", help="root path to start recursive search")
+    p.add_argument("-v", "--verbose", action="store_true")
+    p.add_argument(
+        "-ext", help="video extension to search for", nargs="+", default=VIDEXT
+    )
     P = p.parse_args()
 
     if P.verbose:
         logging.basicConfig(level=logging.DEBUG)
 
-    if os.name == 'nt':
+    if os.name == "nt":
         videos = runner(findvid_win, P.path, P.ext)
     else:
         videos = fv.findvid_gnu(P.path, P.ext)
@@ -40,5 +42,5 @@ def main():
         print(video)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

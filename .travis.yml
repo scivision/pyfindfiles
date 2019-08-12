@@ -24,7 +24,7 @@ matrix:
   - os: linux
     name: PEP8 MyPy Coverage
     python: 3.7
-    install: pip install -e .[tests,cov]
+    install: pip install -e .[tests,lint]
     script:
     - flake8
     - mypy .
