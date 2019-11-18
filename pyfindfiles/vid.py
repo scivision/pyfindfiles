@@ -2,6 +2,7 @@ import typing
 from pathlib import Path
 import asyncio
 import logging
+import sys
 import subprocess
 import shutil
 
@@ -37,12 +38,13 @@ def findvid_gnu(path: Path, exts: typing.Sequence[str]) -> typing.List[str]:
         find,
         str(path),
         "-type",
-        "f",
-        "-regextype",
-        "posix-egrep",
-        "-iregex",
-        r".*(" + r"|".join(exts) + r")$",
-    ]
+        "f"]
+
+    if sys.platform != 'darwin':
+        cmd += ["-regextype", "posix-egrep"]
+
+    cmd += ["-iregex", r".*(" + r"|".join(exts) + r")$"]
+
     logging.debug(" ".join(cmd))
 
     stdout = subprocess.check_output(cmd, universal_newlines=True).strip()
