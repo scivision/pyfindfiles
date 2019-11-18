@@ -27,9 +27,7 @@ def test_findvid_concurrent():
 
 
 def test_script():
-    files = subprocess.check_output(
-        ["findvid", str(R)], universal_newlines=True
-    ).strip()
+    files = subprocess.check_output(["findvid", str(R)], universal_newlines=True).strip()
     assert len(files.split("\n")) == 2
 
 

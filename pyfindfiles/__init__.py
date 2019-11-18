@@ -1,1 +1,1 @@
-from .text import findtext  # noqa: F401
+from .text import findtext

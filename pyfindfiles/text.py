@@ -29,9 +29,7 @@ BINEXT = ["*.pdf"]
 MAXSIZE = 100e6  # arbitrary, bytes
 
 
-def findtext(
-    root: Path, txt: str, globext: Sequence[str], exclude: Sequence[str] = None
-) -> Iterable[Tuple[Path, Dict[int, str]]]:
+def findtext(root: Path, txt: str, globext: Sequence[str], exclude: Sequence[str] = None) -> Iterable[Tuple[Path, Dict[int, str]]]:
     """
     multiple extensions with braces like Linux does not work in .rglob()
     """

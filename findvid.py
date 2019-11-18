@@ -25,9 +25,7 @@ def main():
     p = ArgumentParser()
     p.add_argument("path", help="root path to start recursive search")
     p.add_argument("-v", "--verbose", action="store_true")
-    p.add_argument(
-        "-ext", help="video extension to search for", nargs="+", default=VIDEXT
-    )
+    p.add_argument("-ext", help="video extension to search for", nargs="+", default=VIDEXT)
     P = p.parse_args()
 
     if P.verbose:

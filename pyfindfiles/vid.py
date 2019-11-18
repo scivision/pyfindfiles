@@ -74,10 +74,7 @@ async def findvid_win(path: Path, ext: str) -> typing.List[Path]:
     logging.debug(" ".join(cmd))
     # this has to be _shell due to that "dir" is part of Windows shell itself; _exec won't work.
     proc = await asyncio.create_subprocess_shell(
-        " ".join(cmd),
-        cwd=str(path),
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.DEVNULL,
+        " ".join(cmd), cwd=str(path), stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL,
     )
     stdout, _ = await proc.communicate()
 

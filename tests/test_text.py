@@ -11,13 +11,9 @@ TEST_STRING_TO_MATCH
 """
 
 
-@pytest.mark.skipif(
-    bool(os.environ.get("CI")), reason="CI does not like recursive search"
-)
+@pytest.mark.skipif(bool(os.environ.get("CI")), reason="CI does not like recursive search")
 def test_script():
-    ret = subprocess.check_output(
-        ["findtext", "import"], universal_newlines=True, cwd=str(R)
-    )
+    ret = subprocess.check_output(["findtext", "import"], universal_newlines=True, cwd=str(R))
 
     assert isinstance(ret, str)
 
