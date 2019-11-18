@@ -10,6 +10,7 @@ TXTEXT = [
     "*.md",
     "*.rst",
     "*.tex",
+    "*.build",
     "*.cmake",
     "*.f",
     "*.f90",
