@@ -34,13 +34,9 @@ def findvid_gnu(path: Path, exts: typing.Sequence[str]) -> typing.List[str]:
     if not find:
         raise FileNotFoundError('could not find "find"')
 
-    cmd = [
-        find,
-        str(path),
-        "-type",
-        "f"]
+    cmd = [find, str(path), "-type", "f"]
 
-    if sys.platform != 'darwin':
+    if sys.platform != "darwin":
         cmd += ["-regextype", "posix-egrep"]
 
     cmd += ["-iregex", r".*(" + r"|".join(exts) + r")$"]

@@ -25,6 +25,7 @@ time grep -r -l \
 0.15 sec
 
 """
+from pathlib import Path
 import shutil
 import subprocess
 from argparse import ArgumentParser
@@ -48,6 +49,10 @@ def main():
     p.add_argument("-v", "--verbose", action="store_true")
     P = p.parse_args()
 
+    root = Path(P.dir).expanduser().resolve()
+    if not root.is_dir():
+        raise SystemExit("{} is not a directory.".format(root))
+
     files = pf.findtext(P.dir, P.txt, P.globext, P.exclude)
 
     flist = []
@@ -62,12 +67,14 @@ def main():
             flist.append(str(fn))
             print(fn)
 
+    if not flist:
+        raise SystemExit("no files found in {} matching {}".format(P.dir, P.txt))
+
     if P.run:
         exe = shutil.which(P.run)  # necessary for some Windows program e.g. VScode
-        if exe:
-            subprocess.run([exe] + flist)
-        else:
+        if not exe:
             raise SystemExit("could not find {}".format(exe))
+        subprocess.run([exe] + flist)
 
 
 if __name__ == "__main__":

@@ -28,13 +28,17 @@ def main():
     p.add_argument("-ext", help="video extension to search for", nargs="+", default=VIDEXT)
     P = p.parse_args()
 
+    root = Path(P.path).expanduser().resolve()
+    if not root.is_dir():
+        raise SystemExit("{} is not a directory.".format(root))
+
     if P.verbose:
         logging.basicConfig(level=logging.DEBUG)
 
     if os.name == "nt":
-        videos = runner(findvid_win, P.path, P.ext)
+        videos = runner(findvid_win, root, P.ext)
     else:
-        videos = fv.findvid_gnu(P.path, P.ext)
+        videos = fv.findvid_gnu(root, P.ext)
 
     for video in videos:
         print(video)
