@@ -27,7 +27,7 @@ def test_findvid_gnu():
 
 
 def test_script():
-    files = subprocess.check_output(["findvid", str(R)], universal_newlines=True).strip()
+    files = subprocess.check_output([sys.executable, "findvid.py", str(R)], universal_newlines=True, cwd=R.parent).strip()
     assert len(files.split("\n")) == 2
 
 

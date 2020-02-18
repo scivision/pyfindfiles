@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import subprocess
 import pytest
+import sys
 from pathlib import Path
 import pyfindfiles as pf
 import os
@@ -14,7 +15,7 @@ TEST_STRING_TO_MATCH
 
 @pytest.mark.skipif(bool(os.environ.get("CI")), reason="CI does not like recursive search")
 def test_script():
-    ret = subprocess.check_output(["findtext", "import"], universal_newlines=True, cwd=str(R))
+    ret = subprocess.check_output([sys.executable, "findtext.py", "import"], universal_newlines=True, cwd=R.parent)
 
     assert isinstance(ret, str)
 
