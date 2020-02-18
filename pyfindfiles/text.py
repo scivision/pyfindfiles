@@ -33,7 +33,7 @@ MAXSIZE = 10e6  # arbitrary, bytes
 
 def findtext(
     root: Path, txt: str, *, globext: T.Sequence[str], exclude: T.Sequence[str] = None, age: T.Sequence[datetime] = None,
-) -> T.Iterable[T.Tuple[Path, T.Dict[int, str]]]:
+) -> T.Iterator[T.Tuple[Path, T.Dict[int, str]]]:
     """
     multiple extensions with braces like Linux does not work in .rglob()
     """

@@ -54,12 +54,12 @@ def main():
     # %% preflight
     root = Path(P.dir).expanduser().resolve()
     if not root.is_dir():
-        raise SystemExit("{} is not a directory.".format(root))
+        raise SystemExit(f"{root} is not a directory.")
 
     if P.run:
         exe = shutil.which(P.run)  # necessary for some Windows program e.g. VScode
         if not exe:
-            raise SystemExit("could not find {}".format(exe))
+            raise SystemExit(f"could not find {exe}")
 
     time = None
     if P.time:

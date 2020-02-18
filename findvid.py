@@ -21,7 +21,7 @@ def main():
 
     root = Path(P.path).expanduser().resolve()
     if not root.is_dir():
-        raise SystemExit("{} is not a directory.".format(root))
+        raise SystemExit(f"{root} is not a directory.")
 
     if P.verbose:
         logging.basicConfig(level=logging.DEBUG)
