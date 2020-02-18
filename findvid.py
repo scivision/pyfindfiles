@@ -2,23 +2,14 @@
 """
 recursively find video files based on extension.
 """
-import os
+import sys
 import logging
 from pathlib import Path
-import typing
-import asyncio
 from argparse import ArgumentParser
-import itertools
 
 import pyfindfiles.vid as fv
-from pyfindfiles.runner import runner
 
 VIDEXT = [".avi", ".mov", ".mp4", ".mpg", ".mpeg", ".webm", ".ogv", ".mkv", ".wmv"]
-
-
-async def findvid_win(path: Path, exts: typing.Sequence[str]) -> typing.Iterator[Path]:
-    futures = [fv.findvid_win(path, ext) for ext in exts]
-    return itertools.chain.from_iterable(filter(None, await asyncio.gather(*futures)))
 
 
 def main():
@@ -35,10 +26,10 @@ def main():
     if P.verbose:
         logging.basicConfig(level=logging.DEBUG)
 
-    if os.name == "nt":
-        videos = runner(findvid_win, root, P.ext)
-    else:
+    if sys.platform == "linux":
         videos = fv.findvid_gnu(root, P.ext)
+    else:
+        videos = fv.findvid(root, P.ext)
 
     for video in videos:
         print(video)
