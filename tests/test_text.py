@@ -4,6 +4,7 @@ import pytest
 from pathlib import Path
 import pyfindfiles as pf
 import os
+from datetime import datetime
 
 R = Path(__file__).parent
 """
@@ -20,8 +21,15 @@ def test_script():
     assert len(ret) > 0
 
 
-def test_mod():
-    files = pf.findtext(R, "TEST_STRING_TO_MATCH", "*.py")
+def test_glob():
+    files = pf.findtext(R, "TEST_STRING_TO_MATCH", globext="*.py")
+
+    for file, _ in files:
+        assert file.samefile(__file__)
+
+
+def test_age():
+    files = pf.findtext(R, "TEST_STRING_TO_MATCH", globext="*.py", age=[datetime(2019, 1, 1)])
 
     for file, _ in files:
         assert file.samefile(__file__)
