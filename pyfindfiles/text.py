@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
-from typing import Dict, Iterable, Sequence, Tuple
+import typing as T
+from datetime import datetime
 
 TXTEXT = [
     "*.py",
@@ -27,10 +28,12 @@ TXTEXT = [
 
 BINEXT = ["*.pdf"]
 
-MAXSIZE = 100e6  # arbitrary, bytes
+MAXSIZE = 10e6  # arbitrary, bytes
 
 
-def findtext(root: Path, txt: str, globext: Sequence[str], exclude: Sequence[str] = None) -> Iterable[Tuple[Path, Dict[int, str]]]:
+def findtext(
+    root: Path, txt: str, *, globext: T.Sequence[str], exclude: T.Sequence[str] = None, age: T.Sequence[datetime] = None,
+) -> T.Iterable[T.Tuple[Path, T.Dict[int, str]]]:
     """
     multiple extensions with braces like Linux does not work in .rglob()
     """
@@ -46,6 +49,14 @@ def findtext(root: Path, txt: str, globext: Sequence[str], exclude: Sequence[str
 
     for ext in globext:
         for fn in root.rglob(ext):
+            if age is not None:
+                finf = fn.stat()
+                mt = datetime.utcfromtimestamp(finf.st_mtime)
+                if mt < age[0]:
+                    continue
+                if len(age) == 2 and mt > age[1]:
+                    continue
+
             if exc:
                 excluded = exc.intersection(set(str(fn.resolve()).split(os.sep)))
                 if excluded or not fn.is_file() or fn.stat().st_size > MAXSIZE:
