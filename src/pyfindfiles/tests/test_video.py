@@ -14,7 +14,7 @@ def test_findvid_serial():
     files = fv.findvid(R, ".avi")
 
     flist = list(files)
-
+    print(flist)
     assert len(flist) == 2
 
 
@@ -27,8 +27,10 @@ def test_findvid_gnu():
 
 
 def test_script():
-    files = subprocess.check_output([sys.executable, "findvid.py", str(R)], universal_newlines=True, cwd=R.parent).strip()
-    assert len(files.split("\n")) == 2
+    files = subprocess.check_output(["findvid", str(R)], universal_newlines=True).strip()
+    flist = files.split("\n")
+    print(flist)
+    assert len(flist) == 2
 
 
 if __name__ == "__main__":

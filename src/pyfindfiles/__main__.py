@@ -27,20 +27,25 @@ time grep -r -l \
 """
 from pathlib import Path
 import shutil
+import sys
+import logging
 import subprocess
 from argparse import ArgumentParser
 import dateutil.parser
 
 import pyfindfiles.text as pf
+import pyfindfiles.vid as fv
 
 EXCLUDEDIR = ["_site", ".git", ".eggs", "build", "dist", ".mypy_cache", ".pytest_cache"]
+
+VIDEXT = [".avi", ".mov", ".mp4", ".mpg", ".mpeg", ".webm", ".ogv", ".mkv", ".wmv"]
 
 # from colorama--works for Unix Terminal, PowerShell and Windows Terminal
 MAGENTA = "\x1b[45m"
 BLACK = "\x1b[40m"
 
 
-def main():
+def findtext():
     p = ArgumentParser(description="searches for TEXT under DIR and echos back filenames")
     p.add_argument("txt", help="text to search for")  # required
     p.add_argument("globext", help="filename glob", nargs="?", default=pf.TXTEXT)
@@ -77,5 +82,24 @@ def main():
             subprocess.run([exe, str(fn)])
 
 
-if __name__ == "__main__":
-    main()
+def findvid():
+    p = ArgumentParser()
+    p.add_argument("path", help="root path to start recursive search")
+    p.add_argument("-v", "--verbose", action="store_true")
+    p.add_argument("-ext", help="video extension to search for", nargs="+", default=VIDEXT)
+    P = p.parse_args()
+
+    root = Path(P.path).expanduser().resolve()
+    if not root.is_dir():
+        raise NotADirectoryError(root)
+
+    if P.verbose:
+        logging.basicConfig(level=logging.DEBUG)
+
+    if sys.platform == "linux":
+        videos = fv.findvid_gnu(root, P.ext)
+    else:
+        videos = fv.findvid(root, P.ext)
+
+    for video in videos:
+        print(video)
