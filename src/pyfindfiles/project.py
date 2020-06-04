@@ -13,11 +13,13 @@ def detect_lang(path: Path) -> T.List[str]:
 
     cmfn = path / "codemeta.json"
     if cmfn.is_file():
-        meta = json.loads(cmfn.read_text(errors="ignore"))
         try:
-            return [L.lower() for L in meta["programmingLanguage"]]
-        except KeyError:
+            meta = json.loads(cmfn.read_text(errors="ignore"))
+            if "programmingLanguage" in meta:
+                return [L.lower() for L in meta["programmingLanguage"]]
+        except json.decoder.JSONDecodeError:
             pass
+
     # fallback to heuristic
     if (path / "pyproject.toml").is_file() or (path / "pipfile.lock").is_file():
         return ["python"]
