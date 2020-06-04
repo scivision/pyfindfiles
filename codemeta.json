@@ -1,0 +1,30 @@
+{
+  "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+  "@type": "SoftwareSourceCode",
+  "license": "https://spdx.org/licenses/Apache-2.0",
+  "codeRepository": "https://github.com/scivision/pyfindfiles",
+  "contIntegration": "https://github.com/scivision/pyfindfiles/actions",
+  "dateCreated": "2019-08-01",
+  "dateModified": "2020-03-12",
+  "issueTracker": "https://github.com/scivision/pyfindfiles/issues",
+  "name": "PyFindFiles",
+  "version": "1.4.1",
+  "description": "Concurrently find files containing text patterns with Python AsyncIO on any OS",
+  "applicationCategory": "development",
+  "developmentStatus": "active",
+  "keywords": [
+      "find",
+      "grep"
+  ],
+  "programmingLanguage": [
+      "Python"
+  ],
+  "author": [
+      {
+          "@type": "Person",
+          "@id": "https://orcid.org/0000-0002-1637-6526",
+          "givenName": "Michael",
+          "familyName": "Hirsch"
+      }
+  ]
+}
