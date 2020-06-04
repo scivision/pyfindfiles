@@ -8,7 +8,8 @@ This method is slower than grep or findstr, but is cross-platform and easier syn
 time findtext xarray
 18.6 sec
 
-# note there are no "" on the command below. It's the equivalent of the defaults for the Python script.
+# note there are no "" on the command below.
+# It's the equivalent of the defaults for the Python script.
 time grep -r -l \
   --exclude-dir={\_site,\.git,\.eggs,build,dist,\.mypy_cache,.pytest_cache,*\.egg-info} \
   --include=*.{py,cfg,ini,txt,pdf,md,rst,tex,f,f90,for,f95,c,h,cpp,hpp,m} \
@@ -33,8 +34,9 @@ import subprocess
 from argparse import ArgumentParser
 import dateutil.parser
 
-import pyfindfiles.text as pf
-import pyfindfiles.vid as fv
+from .text import findtext, TXTEXT
+from .vid import findvid, findvid_gnu
+from .project import detect_lang
 
 EXCLUDEDIR = ["_site", ".git", ".eggs", "build", "dist", ".mypy_cache", ".pytest_cache"]
 
@@ -45,10 +47,31 @@ MAGENTA = "\x1b[45m"
 BLACK = "\x1b[40m"
 
 
-def findtext():
+def find_project():
+    p = ArgumentParser(description="searches for projects with codemeta.json of specified language")
+    p.add_argument("codelang", help="code language to search for")
+    p.add_argument("dir", help="root dir to search")
+    p.add_argument("-v", "--verbose", action="store_true")
+    P = p.parse_args()
+
+    # %% preflight
+    root = Path(P.dir).expanduser().resolve()
+    if not root.is_dir():
+        raise SystemExit(f"{root} is not a directory.")
+
+    req_lang = P.codelang.lower()
+
+    dirs = (d for d in root.iterdir() if d.is_dir())
+
+    for d in dirs:
+        if req_lang in detect_lang(d):
+            print(d)
+
+
+def find_text():
     p = ArgumentParser(description="searches for TEXT under DIR and echos back filenames")
     p.add_argument("txt", help="text to search for")  # required
-    p.add_argument("globext", help="filename glob", nargs="?", default=pf.TXTEXT)
+    p.add_argument("globext", help="filename glob", nargs="?", default=TXTEXT)
     p.add_argument("dir", help="root dir to search", nargs="?", default=".")
     p.add_argument("-t", "--time", help="newer than date or between dates", nargs="+")
     p.add_argument("-c", "--run", help="command to run on files e.g. notepad++")
@@ -70,7 +93,7 @@ def findtext():
     if P.time:
         time = [dateutil.parser.parse(t) for t in P.time]
     # %% main
-    for fn, matches in pf.findtext(P.dir, P.txt, globext=P.globext, exclude=P.exclude, age=time):
+    for fn, matches in findtext(P.dir, P.txt, globext=P.globext, exclude=P.exclude, age=time):
         if P.verbose:
             print(MAGENTA + str(fn) + BLACK)
             for k, v in matches.items():
@@ -82,7 +105,7 @@ def findtext():
             subprocess.run([exe, str(fn)])
 
 
-def findvid():
+def find_video():
     p = ArgumentParser()
     p.add_argument("path", help="root path to start recursive search")
     p.add_argument("-v", "--verbose", action="store_true")
@@ -97,9 +120,9 @@ def findvid():
         logging.basicConfig(level=logging.DEBUG)
 
     if sys.platform == "linux":
-        videos = fv.findvid_gnu(root, P.ext)
+        videos = findvid_gnu(root, P.ext)
     else:
-        videos = fv.findvid(root, P.ext)
+        videos = findvid(root, P.ext)
 
     for video in videos:
         print(video)
