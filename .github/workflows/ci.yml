@@ -8,11 +8,17 @@ on:
 
 jobs:
 
-  linux:
-    runs-on: ubuntu-latest
+  core:
+
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+
+    runs-on: ${{ matrix.os }}
+
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
       with:
         python-version: '3.x'
 
@@ -20,22 +26,5 @@ jobs:
 
     - run: flake8
     - run: mypy
-
-    - run: pytest
-
-
-  integration:
-    needs: linux
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [windows-latest, macos-latest]
-    steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
-      with:
-        python-version: '3.x'
-
-    - run: pip install .[tests]
 
     - run: pytest
