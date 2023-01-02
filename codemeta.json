@@ -8,7 +8,6 @@
   "dateModified": "2020-06-03",
   "issueTracker": "https://github.com/scivision/pyfindfiles/issues",
   "name": "PyFindFiles",
-  "version": "1.5.0",
   "description": "Concurrently find files containing text patterns with Python AsyncIO on any OS",
   "applicationCategory": "development",
   "developmentStatus": "active",

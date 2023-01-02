@@ -1,3 +1,4 @@
+from __future__ import annotations
 import typing as T
 from pathlib import Path
 import logging
@@ -6,7 +7,7 @@ import subprocess
 import shutil
 
 
-def findvid(path: Path, ext: T.Sequence[str]) -> T.Iterator[Path]:
+def findvid(path: Path, ext: list[str]) -> T.Iterator[Path]:
     """
     recursive file search in Pure Python.
     about 10 times slower than Linux find, but platform-independent.
@@ -19,7 +20,7 @@ def findvid(path: Path, ext: T.Sequence[str]) -> T.Iterator[Path]:
             yield file
 
 
-def findvid_gnu(path: Path, exts: T.Sequence[str]) -> T.Iterator[str]:
+def findvid_gnu(path: Path, exts: list[str]) -> T.Iterator[str]:
     """
     recursive file search using GNU find
     """

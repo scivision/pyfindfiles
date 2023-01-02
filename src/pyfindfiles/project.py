@@ -1,9 +1,9 @@
+from __future__ import annotations
 from pathlib import Path
 import json
-import typing as T
 
 
-def detect_lang(path: Path) -> T.List[str]:
+def detect_lang(path: Path) -> list[str]:
     """ return lowercase language name, or empty if undetermined.
 
     Reference:

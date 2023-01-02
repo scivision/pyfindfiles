@@ -1,16 +1,17 @@
+from __future__ import annotations
+import typing
 from pathlib import Path
-import typing as T
 import logging
 import asyncio
 import itertools
 
 
-async def findvid_win_run(path: Path, exts: T.Sequence[str]) -> T.Iterator[Path]:
+async def findvid_win_run(path: Path, exts: list[str]) -> typing.Iterator[Path]:
     futures = [findvid_win(path, ext) for ext in exts]
     return itertools.chain.from_iterable(filter(None, await asyncio.gather(*futures)))
 
 
-async def findvid_win(path: Path, ext: str) -> T.List[Path]:
+async def findvid_win(path: Path, ext: str) -> list[Path]:
     """
     asynchronously find files with extension
 

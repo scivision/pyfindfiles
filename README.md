@@ -1,8 +1,6 @@
 # PyFindFiles
 
 ![ci](https://github.com/scivision/pyfindfiles/workflows/ci/badge.svg)
-[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/scivision/pyfindfiles.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/scivision/pyfindfiles/context:python)
-[![pypi versions](https://img.shields.io/pypi/pyversions/pyfindfiles.svg)](https://pypi.python.org/pypi/pyfindfiles)
 [![PyPi Download stats](http://pepy.tech/badge/pyfindfiles)](http://pepy.tech/project/pyfindfiles)
 
 Find files (text or binary) containing text or patterns efficiently with Python, cross-platform.
