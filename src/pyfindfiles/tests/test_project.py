@@ -1,4 +1,4 @@
-import pyfindfiles as pf
+import pyfindfiles.project as pf
 
 
 def test_find_project(tmp_path):
