@@ -4,7 +4,7 @@ from pathlib import Path
 import subprocess
 import sys
 
-import pyfindfiles.vid as fv
+import pyfindfiles.video as fv
 
 if __file__ is None:
     R = None
@@ -14,7 +14,6 @@ else:
 
 @pytest.mark.skipif(R is None, reason="__file__ missing")
 def test_findvid_serial():
-
     files = fv.findvid(R, ".avi")
 
     flist = list(files)
@@ -25,7 +24,6 @@ def test_findvid_serial():
 @pytest.mark.skipif(R is None, reason="__file__ missing")
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only test")
 def test_findvid_gnu():
-
     files = list(fv.findvid_gnu(R, ".avi"))
 
     assert len(files) == 2
@@ -33,7 +31,7 @@ def test_findvid_gnu():
 
 @pytest.mark.skipif(R is None, reason="__file__ missing")
 def test_script():
-    files = subprocess.check_output(["findvid", str(R)], universal_newlines=True).strip()
+    files = subprocess.check_output([sys.executable, "-m", "pyfindfiles.video", str(R)], universal_newlines=True).strip()
     flist = files.split("\n")
     print(flist)
     assert len(flist) == 2

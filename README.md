@@ -31,7 +31,7 @@ pip install -e pyfindfiles
 * `-t`: search for files newer than date, or between dates if two dates given.
 
 ```sh
-findtext Pattern "*.ext" root
+python -m pyfindfiles.text Pattern "*.ext" root
 ```
 
 Pattern
@@ -45,6 +45,9 @@ root
 
 ---
 
-`findvid`
 
-`findvid root` looks under top-level directory `root` for video files (by common file extensions)
+```sh
+python -m pyfindfiles.video top
+```
+
+looks under top-level directory "top" for video files (by common file extensions)

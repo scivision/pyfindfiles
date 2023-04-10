@@ -4,7 +4,7 @@ import json
 
 
 def detect_lang(path: Path) -> list[str]:
-    """ return lowercase language name, or empty if undetermined.
+    """return lowercase language name, or empty if undetermined.
 
     Reference:
     https://help.github.com/en/github/visualizing-repository-data-with-graphs/

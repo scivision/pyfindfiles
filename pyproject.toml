@@ -27,8 +27,6 @@ lint = ["flake8", "flake8-bugbear", "flake8-builtins", "flake8-blind-except",
 "mypy", "types-python-dateutil"]
 
 [project.scripts]
-findtext = "pyfindfiles.__main__:find_text"
-findvid = "pyfindfiles.__main__:find_video"
 findproj = "pyfindfiles.__main__:find_project"
 
 [tool.setuptools.dynamic]

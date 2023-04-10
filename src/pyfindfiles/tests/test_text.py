@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 import subprocess
 import pytest
-import pyfindfiles as pf
+import pyfindfiles.text as pf
 import os
 from datetime import datetime
+import sys
 
 """
 TEST_STRING_TO_MATCH
@@ -13,7 +14,10 @@ TEST_STRING_TO_MATCH
 @pytest.mark.skipif(bool(os.environ.get("CI")), reason="CI does not like recursive search")
 def test_script(tmp_path):
     (tmp_path / "foo.py").write_text("import datetime")
-    ret = subprocess.check_output(["findtext", "import", "*.py", str(tmp_path)], universal_newlines=True)
+    ret = subprocess.check_output(
+        [sys.executable, "-m", "pyfindfiles.text", "import", "*.py", str(tmp_path)],
+        universal_newlines=True,
+    )
 
     assert isinstance(ret, str)
 
@@ -21,7 +25,6 @@ def test_script(tmp_path):
 
 
 def test_glob(tmp_path):
-
     fn = tmp_path / "foo.py"
     fn.write_text("MATCH_ME_NOW_PLEASE")
 
@@ -32,7 +35,6 @@ def test_glob(tmp_path):
 
 
 def test_age(tmp_path):
-
     fn = tmp_path / "foo.py"
     fn.write_text("MATCH_ME_NOW_PLEASE")
 

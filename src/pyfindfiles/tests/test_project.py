@@ -2,7 +2,6 @@ import pyfindfiles as pf
 
 
 def test_find_project(tmp_path):
-
     r = tmp_path
     (r / "pyproject.toml").touch()
 
