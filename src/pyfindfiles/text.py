@@ -75,8 +75,11 @@ def findtext(
                 if excluded or not fn.is_file() or fn.stat().st_size > MAXSIZE:
                     continue
 
-            with fn.open("r", encoding="utf8", errors="ignore") as f:
-                matches = {i: str(line) for i, line in enumerate(f) if txt in line}
+            try:
+                with fn.open("r", encoding="utf8", errors="ignore") as f:
+                    matches = {i: str(line) for i, line in enumerate(f) if txt in line}
+            except PermissionError:
+                continue
 
             if not matches:
                 continue
